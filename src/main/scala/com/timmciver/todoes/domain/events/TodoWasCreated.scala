@@ -1,4 +1,4 @@
-package com.maxwellhealth.todoes.domain.commands
+package com.maxwellhealth.todoes.domain.events
 
 import com.maxwellhealth.sourcery.Event
 import java.time.Instant
