@@ -8,6 +8,8 @@ sealed trait BodyElement extends XmlElement
 sealed trait TableElement extends BodyElement
 case class Xhtml(title: String, body: Body) extends XmlElement
 case class Body(el: BodyElement) extends XmlElement
+case class BodyElementSeq(els: Iterable[BodyElement]) extends BodyElement
+case class Heading(text: String) extends BodyElement
 case class Table(header: TableHeader, rows: Iterable[TableRow]) extends BodyElement
 case class TableHeader(columnHeaders: Iterable[String]) extends TableElement
 case class TableRow(row: Iterable[String]) extends TableElement
@@ -15,10 +17,11 @@ case class TableRow(row: Iterable[String]) extends TableElement
 object Html {
 
   def todosHtml(todos: Iterable[Todo]): Xhtml = {
+    val heading = Heading("Todos")
     val tableHeader = TableHeader(List("ID", "Description"))
     val tableRows = todos.map(todo => TableRow(List(todo.id.toString, todo.text)))
     val table = Table(tableHeader, tableRows)
-    val body = Body(table)
+    val body = Body(BodyElementSeq(List(heading, table)))
 
     Xhtml("Todos", body)
   }
@@ -38,6 +41,8 @@ object Html {
 """
     }
     case Body(body) => xmlToString(body)
+    case BodyElementSeq(els) => els.map(xmlToString).mkString("\n")
+    case Heading(h) => s"<h3>$h</h3>"
     case Table(header, rows) => {
       val headerString = xmlToString(header)
       val rowsString = rows.map(row => xmlToString(row)).mkString("\n")
