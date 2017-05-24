@@ -10,11 +10,20 @@ case class Xhtml(title: String, body: Body) extends XmlElement
 case class Body(el: BodyElement) extends XmlElement
 case class BodyElementSeq(els: Iterable[BodyElement]) extends BodyElement
 case class Heading(text: String) extends BodyElement
+case class Link(text: String, url: String) extends BodyElement
 case class Table(header: TableHeader, rows: Iterable[TableRow]) extends BodyElement
 case class TableHeader(columnHeaders: Iterable[String]) extends TableElement
 case class TableRow(row: Iterable[String]) extends TableElement
 
 object Html {
+
+  def home = {
+    val heading = Heading("Sourcery Todo")
+    val todosLink = Link("View your todos", "/todos")
+    val body = Body(BodyElementSeq(List(heading, todosLink)))
+
+    Xhtml("Sourcery Todos", body)
+  }
 
   def todosHtml(todos: Iterable[Todo]): Xhtml = {
     val heading = Heading("Todos")
@@ -43,6 +52,7 @@ object Html {
     case Body(body) => xmlToString(body)
     case BodyElementSeq(els) => els.map(xmlToString).mkString("\n")
     case Heading(h) => s"<h3>$h</h3>"
+    case Link(text, url) => raw"""<a href="$url">$text</a>"""
     case Table(header, rows) => {
       val headerString = xmlToString(header)
       val rowsString = rows.map(row => xmlToString(row)).mkString("\n")
