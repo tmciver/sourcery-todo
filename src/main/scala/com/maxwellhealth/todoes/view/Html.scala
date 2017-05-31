@@ -2,6 +2,10 @@ package com.maxwellhealth.todoes.view
 
 import com.maxwellhealth.todoes.view.models.Todo
 
+sealed trait HttpMethod
+final case class Get() extends HttpMethod
+final case class Post() extends HttpMethod
+
 // An XML AST
 sealed trait XmlElement
 sealed trait BodyElement extends XmlElement
@@ -14,6 +18,8 @@ case class Link(text: String, url: String) extends BodyElement
 case class Table(header: TableHeader, rows: Iterable[TableRow]) extends BodyElement
 case class TableHeader(columnHeaders: Iterable[String]) extends TableElement
 case class TableRow(row: Iterable[String]) extends TableElement
+case class Form(fields: Iterable[TextField], method: HttpMethod, submitToUrl: String) extends BodyElement
+case class TextField(text: String, name: String) extends XmlElement
 
 object Html {
 
@@ -33,6 +39,15 @@ object Html {
     val body = Body(BodyElementSeq(List(heading, table)))
 
     Xhtml("Todos", body)
+  }
+
+  def createFormHtml = {
+    val heading = Heading("Create a Todo")
+    val descField = TextField("Description", "desc")
+    val form = Form(List(descField), Get(), "/todos")
+    val body = Body(BodyElementSeq(List(heading, form)))
+
+    Xhtml("Create a Todo", body)
   }
 
   def xmlToString(xml: XmlElement): String = xml match {
@@ -70,6 +85,16 @@ object Html {
     case TableRow(rowVals) => {
       val rowString = rowVals.map(rowVal => s"<td>$rowVal</td>").mkString("")
       s"<tr>$rowString</tr>"
+    }
+    case TextField(text, name) => raw"""$text: <input type="text" name="$name">"""
+    case Form(fields, method, url) => {
+      val fieldsStr = fields.map(xmlToString).mkString("\n")
+      raw"""
+<form action="$url" method="post">
+$fieldsStr
+<input type="submit" value="Submit">
+</form>
+"""
     }
   }
 

@@ -8,7 +8,7 @@ import akka.stream.ActorMaterializer
 import scala.io.StdIn
 
 import com.maxwellhealth.todoes.view.models.{ Todo, TodoRepository }
-import com.maxwellhealth.todoes.view.Html.{ home, todosHtml, xmlToString }
+import com.maxwellhealth.todoes.view.Html.{ home, todosHtml, xmlToString, createFormHtml }
 
 import java.util.UUID
 import java.time.Instant
@@ -34,6 +34,9 @@ object App {
             val todos = TodoRepository.getAll
             complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, xmlToString(todosHtml(todos))))
           }
+        } ~
+        path("todo-form") {
+          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, xmlToString(createFormHtml)))
         }
       }
 
