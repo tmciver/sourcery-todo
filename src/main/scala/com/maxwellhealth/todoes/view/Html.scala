@@ -26,7 +26,8 @@ object Html {
   def home = {
     val heading = Heading("Sourcery Todo")
     val todosLink = Link("View your todos", "/todos")
-    val body = Body(BodyElementSeq(List(heading, todosLink)))
+    val formLink = Link("Create a todo", "todo-form")
+    val body = Body(BodyElementSeq(List(heading, todosLink, formLink)))
 
     Xhtml("Sourcery Todos", body)
   }
