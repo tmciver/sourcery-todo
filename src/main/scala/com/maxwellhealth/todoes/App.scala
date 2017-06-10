@@ -27,11 +27,14 @@ object App {
       } ~
     path("todos") {
       get {
-        // add some fake todos
-        TodoRepository.save(Todo(UUID.randomUUID, "Pick up milk.", Instant.now, Instant.now, Instant.now))
-        TodoRepository.save(Todo(UUID.randomUUID, "Go to post office.", Instant.now, Instant.now, Instant.now))
         val todos = TodoRepository.getAll
         complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, xmlToString(todosHtml(todos))))
+      } ~
+      post {
+        formFields('desc) { (desc: String) =>
+          TodoRepository.save(Todo(UUID.randomUUID, desc, Instant.now, Instant.now, Instant.now))
+          redirect("/todos", StatusCodes.SeeOther)
+        }
       }
     } ~
     path("todo-form") {
