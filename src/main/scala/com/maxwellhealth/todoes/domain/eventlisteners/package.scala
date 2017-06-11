@@ -3,9 +3,12 @@ package object eventlisteners {
 
   import com.maxwellhealth.sourcery.EventListener
   import com.maxwellhealth.todoes.domain.events.TodoWasCreated
+  import com.maxwellhealth.todoes.view.models.Todo
+  import com.maxwellhealth.todoes.view.models.TodoRepository
   import java.util.UUID
+  import java.time.Instant
 
   def todoViewUpdater: EventListener[UUID] = {
-    case TodoWasCreated(_, entityId, text, due) => println("Persisting Todo with ID: " + entityId + " to the Todo view table.") // should add a Todo to a Todo view table.
+    case TodoWasCreated(_, entityId, text, due) => TodoRepository.save(Todo(entityId, text, due, Instant.now, Instant.now))
   }
 }

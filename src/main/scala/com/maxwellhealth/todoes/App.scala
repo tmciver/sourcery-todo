@@ -9,9 +9,12 @@ import scala.io.StdIn
 
 import com.maxwellhealth.todoes.view.models.{ Todo, TodoRepository }
 import com.maxwellhealth.todoes.view.Html.{ home, todosHtml, xmlToString, createFormHtml }
+import com.maxwellhealth.todoes.domain.commands.CreateTodo
+import com.maxwellhealth.todoes.domain.events.eventListeners
 
 import java.util.UUID
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 object App {
   def main(args: Array[String]) {
@@ -32,7 +35,9 @@ object App {
       } ~
       post {
         formFields('desc) { (desc: String) =>
-          TodoRepository.save(Todo(UUID.randomUUID, desc, Instant.now, Instant.now, Instant.now))
+          val due = Instant.now.plus(1, ChronoUnit.DAYS)
+          val command = CreateTodo(desc, due)
+          command.dispatch(eventListeners)
           redirect("/todos", StatusCodes.SeeOther)
         }
       }
