@@ -15,6 +15,8 @@ case class Body(el: BodyElement) extends XmlElement
 case class BodyElementSeq(els: Iterable[BodyElement]) extends BodyElement
 case class Heading(text: String) extends BodyElement
 case class Link(text: String, url: String) extends BodyElement
+case class UnorderedList(items: Iterable[UnorderedListItem]) extends BodyElement
+case class UnorderedListItem(item: BodyElement) extends BodyElement
 case class Table(header: TableHeader, rows: Iterable[TableRow]) extends BodyElement
 case class TableHeader(columnHeaders: Iterable[String]) extends TableElement
 case class TableRow(row: Iterable[String]) extends TableElement
@@ -27,7 +29,8 @@ object Html {
     val heading = Heading("Sourcery Todo")
     val todosLink = Link("View your todos", "/todos")
     val formLink = Link("Create a todo", "todo-form")
-    val body = Body(BodyElementSeq(List(heading, todosLink, formLink)))
+    val linkList = UnorderedList(List(UnorderedListItem(todosLink), UnorderedListItem(formLink)))
+    val body = Body(BodyElementSeq(List(heading, linkList)))
 
     Xhtml("Sourcery Todos", body)
   }
@@ -71,6 +74,18 @@ object Html {
     case BodyElementSeq(els) => els.map(xmlToString).mkString("\n")
     case Heading(h) => s"<h3>$h</h3>"
     case Link(text, url) => raw"""<a href="$url">$text</a>"""
+    case UnorderedList(items) => {
+      val itemsString = items.map(xmlToString(_)).mkString("\n")
+      raw"""
+<ul>
+  $itemsString
+</ul>
+"""
+    }
+    case UnorderedListItem(item) => {
+      val itemString = xmlToString(item)
+      raw"""<li>$itemString</li>"""
+    }
     case Table(header, rows) => {
       val headerString = xmlToString(header)
       val rowsString = rows.map(row => xmlToString(row)).mkString("\n")
