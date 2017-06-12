@@ -34,19 +34,21 @@ object Html {
 
   def todosHtml(todos: Iterable[Todo]): Xhtml = {
     val heading = Heading("Todos")
+    val homeLink = Link("Home", "/")
     val tableHeader = TableHeader(List("ID", "Description"))
     val tableRows = todos.map(todo => TableRow(List(todo.id.toString, todo.text)))
     val table = Table(tableHeader, tableRows)
-    val body = Body(BodyElementSeq(List(heading, table)))
+    val body = Body(BodyElementSeq(List(heading, homeLink, table)))
 
     Xhtml("Todos", body)
   }
 
   def createFormHtml = {
     val heading = Heading("Create a Todo")
+    val homeLink = Link("Home", "/")
     val descField = TextField("Description", "desc")
     val form = Form(List(descField), Get(), "/todos")
-    val body = Body(BodyElementSeq(List(heading, form)))
+    val body = Body(BodyElementSeq(List(heading, homeLink, form)))
 
     Xhtml("Create a Todo", body)
   }
