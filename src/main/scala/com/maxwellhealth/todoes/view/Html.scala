@@ -21,6 +21,7 @@ case class Table(header: TableHeader, rows: Iterable[TableRow]) extends BodyElem
 case class TableHeader(columnHeaders: Iterable[String]) extends TableElement
 case class TableRow(row: Iterable[String]) extends TableElement
 case class Form(fields: Iterable[TextField], method: HttpMethod, submitToUrl: String) extends BodyElement
+case class Text(text: String) extends BodyElement
 case class TextField(text: String, name: String) extends XmlElement
 
 object Html {
@@ -28,7 +29,7 @@ object Html {
   def home = {
     val heading = Heading("Sourcery Todo")
     val todosLink = Link("View your todos", "/todos")
-    val formLink = Link("Create a todo", "todo-form")
+    val formLink = Link("Create a todo", "/todo-form")
     val linkList = UnorderedList(List(UnorderedListItem(todosLink), UnorderedListItem(formLink)))
     val body = Body(BodyElementSeq(List(heading, linkList)))
 
@@ -38,10 +39,15 @@ object Html {
   def todosHtml(todos: Iterable[Todo]): Xhtml = {
     val heading = Heading("Todos")
     val homeLink = Link("Home", "/")
-    val tableHeader = TableHeader(List("ID", "Description"))
-    val tableRows = todos.map(todo => TableRow(List(todo.id.toString, todo.text)))
-    val table = Table(tableHeader, tableRows)
-    val body = Body(BodyElementSeq(List(heading, homeLink, table)))
+
+    val body = if (todos.isEmpty)
+      Body(BodyElementSeq(List(heading, homeLink, Text("You have no todos."), Link("Create one.", "/todo-form"))))
+    else {
+      val tableHeader = TableHeader(List("ID", "Description"))
+      val tableRows = todos.map(todo => TableRow(List(todo.id.toString, todo.text)))
+      val table = Table(tableHeader, tableRows)
+      Body(BodyElementSeq(List(heading, homeLink, table)))
+    }
 
     Xhtml("Todos", body)
   }
@@ -105,6 +111,7 @@ object Html {
       s"<tr>$rowString</tr>"
     }
     case TextField(text, name) => raw"""$text: <input type="text" name="$name">"""
+    case Text(text) => text
     case Form(fields, method, url) => {
       val fieldsStr = fields.map(xmlToString).mkString("\n")
       raw"""
