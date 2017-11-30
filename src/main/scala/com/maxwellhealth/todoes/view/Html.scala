@@ -56,7 +56,8 @@ object Html {
     val heading = Heading("Create a Todo")
     val homeLink = Link("Home", "/")
     val descField = TextField("Description", "desc")
-    val form = Form(List(descField), Get(), "/todos")
+    val dateField = TextField("Due date (MM/DD/YYYY)", "due")
+    val form = Form(List(descField, dateField), Get(), "/todos")
     val body = Body(BodyElementSeq(List(heading, homeLink, form)))
 
     Xhtml("Create a Todo", body)
@@ -113,7 +114,7 @@ object Html {
     case TextField(text, name) => raw"""$text: <input type="text" name="$name">"""
     case Text(text) => text
     case Form(fields, method, url) => {
-      val fieldsStr = fields.map(xmlToString).mkString("\n")
+      val fieldsStr = fields.map(xmlToString).mkString("<br />\n")
       raw"""
 <form action="$url" method="post">
 $fieldsStr
